@@ -21,7 +21,6 @@ function getOrder(isCheckOutAfterSubmit=false){
     var order={
       tableID:$row.data('table-id'),
       productID:$row.data('pid'),
-      count:$row.data('count'),
       comments:commentTmp
     }
     if($row.data('order-id') !== undefined){
@@ -95,10 +94,10 @@ function onOrderProductClick(id,name,count,price,comment){
   }
   var $row = $('<tr/>');
   var htmlComment=(comment!=null && comment!='') ? "<div>"+comment+"</div>" : '';
-  $row.data('table-id',parseInt($selectedTable.val())).data('pid',id).data('name',name).data('count',count).data('price',price);
+  $row.data('table-id',parseInt($selectedTable.val())).data('pid',id).data('name',name).data('price',price).data('count',count);
   $row.append('<td><strong class="white-space--nowrap rounded background-color--gray padding">'+$selectedTable.find("option:selected").text()+'</strong></td>')
-      .append('<td class="width--full"><strong class="color--blue">'+name+'</strong>'+htmlComment+'</td>')
-      .append('<td class="text-align--right white-space--nowrap"><span class="rounded background-color--yellow padding">'+formatCurrency(price)+'</span></td>')
+      .append('<td class="width--full"><strong class="color--blue">['+count+']'+name+'</strong>'+htmlComment+'</td>')
+      .append('<td class="text-align--right white-space--nowrap"><span class="rounded background-color--yellow padding">'+formatCurrency(count*price)+'</span></td>')
       .append('<td class="text-align--center"><img onclick="onAddRow(this)" width="24px" height="24px" src="http://localhost/pos/pos-lib/images/ic_add.png" alt="Them"></td>')
       .append('<td class="text-align--center"><img onclick="onDeleteRow(this)" width="24px" height="24px" src="http://localhost/pos/pos-lib/images/ic_close.png" alt="Xoa"></td>');
   console.log('insert= '+insertIndex);
@@ -205,27 +204,29 @@ function loadOrderProducts(element) {
     }
   });
 }
-/* NOT USE */
-/*function loadProductComments(pId){
-  var $commentList= $('#order_bottom_list');
-  $commentList.empty();
-  var link=window.apiUrl+'comment.php?productId='+pId;
+function loadProductComments(pId){
+  var link='/v1/products/'+pId+'/comments';
   $.getJSON(link, function(response){
-    if(response.status === true){
-      //title
-      $.each(response.comments, function(i, comment){
-        $commentList.append('<div class="hover--green"  onclick="onOrderProductCommentClick(\''+comment.name+'\');" >'+comment.name+'</div>');
-      });
-    }else{
-      if(response.code == 306) location.href='../login?from='+location.href;
+    var $commentList= $('#order_bottom_list');
+    $commentList.empty();
+    console.log(response)
+    //title
+    $.each(response, function(i, comment){
+      $commentList.append('<div class="hover--green"  onclick="onOrderProductCommentClick(\''+comment.name+'\');" >'+comment.name+'</div>');
+    });
+  }).fail(function(jqXHR) {
+    if(jqXHR.status == 306){
+      location.href=window.loginUrl+'?from='+location.href;
+    }else {
+      showAlertDialog('That bai'+link,response.message,false,false);
     }
   });
 }
-*/
+
 function removePressedTableRow(){
   $tableBody.find('.pressed--forcus').removeClass('pressed--forcus')
 }
-function showCommentComments(){
+function showComments(){
   $('#order_bottom_list').removeClass("hide");
 }
 function hideComments(){
@@ -259,6 +260,6 @@ $tableBody.on('click','tr:has(td)',function(event){
   $this.addClass('pressed--forcus');
   $tableBody.data('currentPressedIndex',thisIndex);
   console.log("click "+(thisIndex)+"of "+($rows.length)+" with pID="+$(this).data('pid'));
-  showCommentComments();
-  //loadProductComments($(this).data('pid')) not use
+  showComments();
+  loadProductComments($(this).data('pid'))
 });

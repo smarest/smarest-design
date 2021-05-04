@@ -1,8 +1,5 @@
 function loadOrderGroupByTableInArea(areaId) {
-  var link = "/v1/areas/";
-  if (parseInt(areaId) > 0) {
-    link += areaId + "/orders";
-  }
+  var link = "/v1/areas/"+areaId+"/orders";
   console.log(link)
   $.getJSON(link, function(response) {
     var $tableBody = $('#order_body');
@@ -60,7 +57,7 @@ function deleteOrder(event, numberId) {
         }
       },
       error: function(xhr, resp, text) {
-        if (response.code == 306) location.href = window.loginUrl + '?from=' + location.href;
+        if (resp.code == 306) location.href = window.loginUrl + '?from=' + location.href;
         else showAlertDialog('That bai', resp.errorMessage, false, false);
       }
     });
