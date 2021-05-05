@@ -1,0 +1,18 @@
+.grid-container {
+    display: grid;
+    align-content: start;
+    grid-template-columns: repeat( auto-fill, minmax(150px, 1fr));
+    grid-gap: 5px;
+}
+
+.grid-container>div {
+    text-align: justify;
+    min-height: 120px;
+    min-width: 120px;
+}
+
+.dashed {
+    line-height: normal;
+    border-bottom: dashed 1px grey;
+    padding: 2px;
+}
